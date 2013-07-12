@@ -751,6 +751,89 @@ namespace Pedrina_Backtester
             // Size the control to fill the form with a margin
             SetSize();
         }
+
+        public class BlackFin
+        {
+            public int iMAXDA = 0;
+            public int iMAXDC = 0;
+            public int iMAXDO = 0;
+            public int iMINDA = 0;
+            public int iMINDC = 0;
+            public int iMINDO = 0;
+            public int iAMPDA = 0;
+            public int iFDCPA = 0;
+            public int iFDVDA = 0;
+        }
+        
+        private void bTestarBF_Click(object sender, EventArgs e)
+        {
+            BlackFin dadosBF = new BlackFin();
+            for (int d = 1; dia[d] != null; d++)
+            {
+                CriarPontodeEntradaDiaBF(d, ref dadosBF);
+                for (int i = 0, t = 0; dia[d].Ticker[i] != null; i++)
+                {
+                    ExecutaEntrada();
+
+                }
+            }
+
+        }
+
+        private void ExecutaEntrada()
+        {
+        }
+
+        public class TradeBF
+        {
+            public int iValorEntrada;
+            public int iLucroAtual;
+            public int iMinLucro;
+            public int iMaxLucro;
+            public tipoTrade tttipoTrade;
+            public bool bNoMercado = false;
+            public enum tipoTrade { compra, venda };
+        }
+
+        private void CriarPontodeEntradaDiaBF( int d, ref BlackFin dados)
+        {
+            tsInicioTrade = TimeSpan.Parse(cbHorarioEntrada.SelectedItem.ToString());
+            for (int i = 0; dia[d].Ticker[i] != null /*&& TimeSpan.Compare(dia[d].Ticker[i].dtData.TimeOfDay, dia[d].tsInicioTrade) <= 0*/; i++)
+            {
+                /*
+                MAXDA = Máxima do dia anterior
+                MINDA = Mínima do dia anterior
+                AMPDA = Amplitude do dia anterior (MAXDA-MINDA)
+                FDCPA = Filtro de compra (esse filtro autoriza a compra)
+                FDVDA = Filtro de venda (esse filtro autoriza a venda)
+                */
+                if (dados.iMAXDA == 0 || dia[d].Ticker[i].iMaximo > dados.iMAXDA)
+                    dados.iMAXDA = dia[d].Ticker[i].iMaximo;
+                if (dados.iMINDA == 0 || dia[d].Ticker[i].iMinimo < dados.iMINDA)
+                    dados.iMINDA = dia[d].Ticker[i].iMinimo;
+                /*
+
+                if (dia[d].Ticker[i].dtData.Day == 31)
+                    i = i;
+
+                if (dia[d].Ticker[i].iMinimo < dia[d].iMinChegou)
+                {
+                    dia[d].iMinChegou = dia[d].Ticker[i].iMinimo;
+                    //dia[d-1].iEntradaVenda = dia[d-1].Ticker[i].iMinimo - 5;
+                    dia[d].iEntradaVenda = dia[d].Ticker[i].iMinimo - 5;
+                }
+                if (dia[d].Ticker[i].iMaximo > dia[d].iMaximoChegou)
+                {
+                    dia[d].iMaximoChegou = dia[d].Ticker[i].iMaximo;
+                    //dia[d].iEntradaCompra = dia[d].Ticker[i].iMaximo + 5;
+                    dia[d].iEntradaCompra = dia[d].Ticker[i].iMaximo + 5;
+                }*/
+            }
+            dados.iAMPDA = dados.iMAXDA - dados.iMINDA;
+            int filtro = (int)Math.Round((0.1 * dados.iAMPDA / 5.0)) * 5;
+            dados.iFDCPA = dados.iMINDA - filtro;// (int)(0.1 * dados.iAMPDA / 5.0) * 5;
+            dados.iFDVDA = dados.iMAXDA + filtro;// (int)(0.1 * dados.iAMPDA / 5.0) * 5;
+        }
         /*
         private void button1_Click_1(object sender, EventArgs e)
         {

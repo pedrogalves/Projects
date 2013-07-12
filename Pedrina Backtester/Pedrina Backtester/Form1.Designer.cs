@@ -48,9 +48,10 @@ namespace Pedrina_Backtester
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.zedGraphControl1 = new ZedGraph.ZedGraphControl();
-            this.btNextChart = new System.Windows.Forms.Button();
             this.btPreviousChart = new System.Windows.Forms.Button();
+            this.btNextChart = new System.Windows.Forms.Button();
+            this.zedGraphControl1 = new ZedGraph.ZedGraphControl();
+            this.buttonBF = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -206,6 +207,7 @@ namespace Pedrina_Backtester
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.buttonBF);
             this.tabPage1.Controls.Add(this.label1);
             this.tabPage1.Controls.Add(this.button2);
             this.tabPage1.Controls.Add(this.bAbrirArquivo);
@@ -222,7 +224,7 @@ namespace Pedrina_Backtester
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(699, 441);
+            this.tabPage1.Size = new System.Drawing.Size(722, 461);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "tabPage1";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -240,6 +242,28 @@ namespace Pedrina_Backtester
             this.tabPage2.Text = "tabPage2";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
+            // btPreviousChart
+            // 
+            this.btPreviousChart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btPreviousChart.Location = new System.Drawing.Point(681, 3);
+            this.btPreviousChart.Name = "btPreviousChart";
+            this.btPreviousChart.Size = new System.Drawing.Size(20, 23);
+            this.btPreviousChart.TabIndex = 2;
+            this.btPreviousChart.Text = "<";
+            this.btPreviousChart.UseVisualStyleBackColor = true;
+            this.btPreviousChart.Click += new System.EventHandler(this.btPreviousChart_Click);
+            // 
+            // btNextChart
+            // 
+            this.btNextChart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btNextChart.Location = new System.Drawing.Point(702, 3);
+            this.btNextChart.Name = "btNextChart";
+            this.btNextChart.Size = new System.Drawing.Size(20, 23);
+            this.btNextChart.TabIndex = 1;
+            this.btNextChart.Text = ">";
+            this.btNextChart.UseVisualStyleBackColor = true;
+            this.btNextChart.Click += new System.EventHandler(this.btNextChart_Click);
+            // 
             // zedGraphControl1
             // 
             this.zedGraphControl1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -255,27 +279,15 @@ namespace Pedrina_Backtester
             this.zedGraphControl1.Size = new System.Drawing.Size(716, 455);
             this.zedGraphControl1.TabIndex = 0;
             // 
-            // btNextChart
+            // buttonBF
             // 
-            this.btNextChart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btNextChart.Location = new System.Drawing.Point(702, 3);
-            this.btNextChart.Name = "btNextChart";
-            this.btNextChart.Size = new System.Drawing.Size(20, 23);
-            this.btNextChart.TabIndex = 1;
-            this.btNextChart.Text = ">";
-            this.btNextChart.UseVisualStyleBackColor = true;
-            this.btNextChart.Click += new System.EventHandler(this.btNextChart_Click);
-            // 
-            // btPreviousChart
-            // 
-            this.btPreviousChart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btPreviousChart.Location = new System.Drawing.Point(681, 3);
-            this.btPreviousChart.Name = "btPreviousChart";
-            this.btPreviousChart.Size = new System.Drawing.Size(20, 23);
-            this.btPreviousChart.TabIndex = 2;
-            this.btPreviousChart.Text = "<";
-            this.btPreviousChart.UseVisualStyleBackColor = true;
-            this.btPreviousChart.Click += new System.EventHandler(this.btPreviousChart_Click);
+            this.buttonBF.Location = new System.Drawing.Point(581, 93);
+            this.buttonBF.Name = "buttonBF";
+            this.buttonBF.Size = new System.Drawing.Size(82, 23);
+            this.buttonBF.TabIndex = 13;
+            this.buttonBF.Text = "Testar BF";
+            this.buttonBF.UseVisualStyleBackColor = true;
+            this.buttonBF.Click += new System.EventHandler(this.bTestarBF_Click);
             // 
             // Form1
             // 
@@ -318,6 +330,7 @@ namespace Pedrina_Backtester
         private ZedGraph.ZedGraphControl zedGraphControl1;
         private System.Windows.Forms.Button btPreviousChart;
         private System.Windows.Forms.Button btNextChart;
+        private System.Windows.Forms.Button buttonBF;
     }
 }
 

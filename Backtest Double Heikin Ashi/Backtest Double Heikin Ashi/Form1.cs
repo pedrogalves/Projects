@@ -95,7 +95,7 @@ namespace Backtest_Double_Heikin_Ashi
             public int iFDVDA = 0;
         }
         private void button1_Click(object sender, EventArgs e)
-        {
+        { 
             int iMinimoEntrada = 0;
             int iMaximoEntrada = 0;
             //DateTime dtHoraEntrada;
