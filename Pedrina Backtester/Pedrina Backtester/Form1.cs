@@ -77,6 +77,7 @@ namespace Pedrina_Backtester
             public int iMinChegou = 100000;
             public Ticker[] Ticker = new Ticker[1050];
             public Trade[] TradesDia = new Trade[20];
+            public TradeBF[] TradesDiaBF = new TradeBF[5];
             public bool bNoMercado = false;
             public bool bHorariodeVerao = false;
             public TimeSpan tsInicioTrade = new TimeSpan(10, 0, 0);
@@ -212,7 +213,7 @@ namespace Pedrina_Backtester
         {
             CarregarDadosHistorico();
         }
-
+        #region Pedrina Backtest
         /*private void Page_Load(object sender, EventArgs e)
         {
             // declare a new GridView
@@ -634,7 +635,8 @@ namespace Pedrina_Backtester
         {
             resultadoEstrategia();
         }
-
+#endregion
+        #region Graphic Handling
         private void button2_Click(object sender, EventArgs e)
         {
             // Setup the graph
@@ -751,6 +753,7 @@ namespace Pedrina_Backtester
             // Size the control to fill the form with a margin
             SetSize();
         }
+        #endregion 
 
         public class BlackFin
         {
@@ -763,6 +766,8 @@ namespace Pedrina_Backtester
             public int iAMPDA = 0;
             public int iFDCPA = 0;
             public int iFDVDA = 0;
+            public short sAbaixoFDCPA = 0;
+            public short sAcimaFDVDA = 0;
         }
         
         private void bTestarBF_Click(object sender, EventArgs e)
@@ -770,18 +775,39 @@ namespace Pedrina_Backtester
             BlackFin dadosBF = new BlackFin();
             for (int d = 1; dia[d] != null; d++)
             {
-                CriarPontodeEntradaDiaBF(d, ref dadosBF);
+                CriarVariaveisBF(d, ref dadosBF);
                 for (int i = 0, t = 0; dia[d].Ticker[i] != null; i++)
                 {
-                    ExecutaEntrada();
+                    ExecutaEntrada(dia[d].Ticker[i], &dadosBF, i);
+
 
                 }
             }
 
         }
 
-        private void ExecutaEntrada()
+        private void ExecutaEntrada( Ticker ticker, ref BlackFin dadosBF, int i )
         {
+            if (dadosBF.iAMPDA < 500)
+                return;
+            //ver melhor maneira de testar a última hora
+            //filtro de compra
+            if (ticker.iFechamento < dadosBF.iFDCPA)
+                dadosBF.sAbaixoFDCPA++;
+            //filtro de venda
+            if (ticker.iFechamento > dadosBF.sAcimaFDVDA)
+                dadosBF.sAcimaFDVDA++;
+            if (i < 15)
+                return;
+            if (dadosBF.sAcimaFDVDA > 1 && ticker.iFechamento < dadosBF.iMAXDA)
+            {
+                //entrar no trade VENDA
+            }
+            if (dadosBF.sAcimaFDCPA > 1 && ticker.iFechamento > dadosBF.iMINDA)
+            {
+                //entrar no trade COMPRA
+            }
+            return;
         }
 
         public class TradeBF
@@ -793,9 +819,14 @@ namespace Pedrina_Backtester
             public tipoTrade tttipoTrade;
             public bool bNoMercado = false;
             public enum tipoTrade { compra, venda };
+            public TradeBF ( int _iValorEntrada, tipoTrade _tttipoTrade )
+            {
+                iValorEntrada = _iValorEntrada;
+                tttipoTrade = _tttipoTrade;
+            }
         }
 
-        private void CriarPontodeEntradaDiaBF( int d, ref BlackFin dados)
+        private void CriarVariaveisBF( int d, ref BlackFin dados)
         {
             tsInicioTrade = TimeSpan.Parse(cbHorarioEntrada.SelectedItem.ToString());
             for (int i = 0; dia[d].Ticker[i] != null /*&& TimeSpan.Compare(dia[d].Ticker[i].dtData.TimeOfDay, dia[d].tsInicioTrade) <= 0*/; i++)
