@@ -772,13 +772,15 @@ namespace Pedrina_Backtester
         
         private void bTestarBF_Click(object sender, EventArgs e)
         {
-            BlackFin dadosBF = new BlackFin();
+            BlackFin dadosBF;
             for (int d = 1; dia[d] != null; d++)
             {
-                CriarVariaveisBF(d, ref dadosBF);
+                dadosBF = new BlackFin();
+                CriarVariaveisBF(d - 1, ref dadosBF);
                 for (int i = 0, t = 0; dia[d].Ticker[i] != null; i++)
                 {
-                    ExecutaEntrada(dia[d].Ticker[i], &dadosBF, i);
+                    if (dia[d].Ticker[i].dtData.Minute % 5 == 0)    
+                        ExecutaEntrada(ref dia[d], ref dadosBF, i);
 
 
                 }
@@ -786,25 +788,33 @@ namespace Pedrina_Backtester
 
         }
 
-        private void ExecutaEntrada( Ticker ticker, ref BlackFin dadosBF, int i )
+        private void ExecutaEntrada( ref DiaNegocio dia, ref BlackFin dadosBF, int i )
         {
             if (dadosBF.iAMPDA < 500)
                 return;
             //ver melhor maneira de testar a última hora
             //filtro de compra
-            if (ticker.iFechamento < dadosBF.iFDCPA)
+            if (dia.Ticker[i].iFechamento < dadosBF.iFDCPA)
                 dadosBF.sAbaixoFDCPA++;
             //filtro de venda
-            if (ticker.iFechamento > dadosBF.sAcimaFDVDA)
+            if (dia.Ticker[i].iFechamento > dadosBF.iFDVDA)
                 dadosBF.sAcimaFDVDA++;
             if (i < 15)
                 return;
-            if (dadosBF.sAcimaFDVDA > 1 && ticker.iFechamento < dadosBF.iMAXDA)
+            if (dadosBF.sAcimaFDVDA > 1 && dia.Ticker[i].iFechamento < dadosBF.iMAXDA && !dia.bNoMercado)
             {
+                int iTradeNoDia = 0;
+                while (dia.TradesDiaBF[iTradeNoDia] != null) iTradeNoDia++;
+                dia.TradesDiaBF[iTradeNoDia] = new TradeBF(dia.Ticker[i].iFechamento, TradeBF.tipoTrade.venda);
+                dia.bNoMercado = true;
                 //entrar no trade VENDA
             }
-            if (dadosBF.sAcimaFDCPA > 1 && ticker.iFechamento > dadosBF.iMINDA)
+            if (dadosBF.sAbaixoFDCPA > 1 && dia.Ticker[i].iFechamento > dadosBF.iMINDA && !dia.bNoMercado)
             {
+                int iTradeNoDia = 0;
+                while (dia.TradesDiaBF[iTradeNoDia] != null) iTradeNoDia++;
+                dia.TradesDiaBF[iTradeNoDia] = new TradeBF(dia.Ticker[i].iFechamento, TradeBF.tipoTrade.compra);
+                dia.bNoMercado = true;
                 //entrar no trade COMPRA
             }
             return;
@@ -823,6 +833,7 @@ namespace Pedrina_Backtester
             {
                 iValorEntrada = _iValorEntrada;
                 tttipoTrade = _tttipoTrade;
+                bNoMercado = true;
             }
         }
 
