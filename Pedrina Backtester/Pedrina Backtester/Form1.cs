@@ -779,13 +779,35 @@ namespace Pedrina_Backtester
                 CriarVariaveisBF(d - 1, ref dadosBF);
                 for (int i = 0, t = 0; dia[d].Ticker[i] != null; i++)
                 {
+                    AtualizarVariaveisBF(dia[d].Ticker[i], ref dadosBF);
+
                     if (dia[d].Ticker[i].dtData.Minute % 5 == 0)    
                         ExecutaEntrada(ref dia[d], ref dadosBF, i);
 
-
+                    AtualizaLucro();
                 }
             }
+        }
 
+        private void AtualizaLucro()
+        {
+            //se menor q stop fixo, sai do trade
+            //se maior q 1.6 AMPDA
+            //se menor trailing stop, sai do trade
+            //se 15 minutos antes do fechamento, sai do trade
+
+            //atualiza MAXDO
+            //atualiza MINDO
+            //atualiza MaxLucro
+            //atualiza LucroAtual
+        }
+
+        private void AtualizarVariaveisBF(Ticker ticker, ref BlackFin dados)
+        {
+            if (dados.iMAXDC == 0 || ticker.iMaximo > dados.iMAXDC)
+                dados.iMAXDC = ticker.iMaximo;
+            if (dados.iMINDC == 0 || ticker.iMinimo < dados.iMINDC)
+                dados.iMINDC = ticker.iMinimo;
         }
 
         private void ExecutaEntrada( ref DiaNegocio dia, ref BlackFin dadosBF, int i )
@@ -805,16 +827,18 @@ namespace Pedrina_Backtester
             {
                 int iTradeNoDia = 0;
                 while (dia.TradesDiaBF[iTradeNoDia] != null) iTradeNoDia++;
-                dia.TradesDiaBF[iTradeNoDia] = new TradeBF(dia.Ticker[i].iFechamento, TradeBF.tipoTrade.venda);
+                dia.TradesDiaBF[iTradeNoDia] = new TradeBF(dia.Ticker[i].iFechamento, TradeBF.tipoTrade.venda, dadosBF.iMAXDC + 50);
                 dia.bNoMercado = true;
+                dadosBF.iMINDO = dia.Ticker[i].iFechamento;
                 //entrar no trade VENDA
             }
             if (dadosBF.sAbaixoFDCPA > 1 && dia.Ticker[i].iFechamento > dadosBF.iMINDA && !dia.bNoMercado)
             {
                 int iTradeNoDia = 0;
                 while (dia.TradesDiaBF[iTradeNoDia] != null) iTradeNoDia++;
-                dia.TradesDiaBF[iTradeNoDia] = new TradeBF(dia.Ticker[i].iFechamento, TradeBF.tipoTrade.compra);
+                dia.TradesDiaBF[iTradeNoDia] = new TradeBF(dia.Ticker[i].iFechamento, TradeBF.tipoTrade.compra, dadosBF.iMINDC - 50);
                 dia.bNoMercado = true;
+                dadosBF.iMAXDO = dia.Ticker[i].iFechamento;
                 //entrar no trade COMPRA
             }
             return;
@@ -826,13 +850,17 @@ namespace Pedrina_Backtester
             public int iLucroAtual;
             public int iMinLucro;
             public int iMaxLucro;
+            public int iStopFixo;
+            public int iStopTrailing;
             public tipoTrade tttipoTrade;
             public bool bNoMercado = false;
             public enum tipoTrade { compra, venda };
-            public TradeBF ( int _iValorEntrada, tipoTrade _tttipoTrade )
+            public TradeBF ( int _iValorEntrada, tipoTrade _tttipoTrade, int _iStopFixo )
             {
                 iValorEntrada = _iValorEntrada;
                 tttipoTrade = _tttipoTrade;
+                iStopFixo = _iStopFixo;
+                iStopTrailing = (_tttipoTrade == tipoTrade.compra) ? (iValorEntrada - 425) : (iValorEntrada + 425);
                 bNoMercado = true;
             }
         }
@@ -853,33 +881,13 @@ namespace Pedrina_Backtester
                     dados.iMAXDA = dia[d].Ticker[i].iMaximo;
                 if (dados.iMINDA == 0 || dia[d].Ticker[i].iMinimo < dados.iMINDA)
                     dados.iMINDA = dia[d].Ticker[i].iMinimo;
-                /*
-
-                if (dia[d].Ticker[i].dtData.Day == 31)
-                    i = i;
-
-                if (dia[d].Ticker[i].iMinimo < dia[d].iMinChegou)
-                {
-                    dia[d].iMinChegou = dia[d].Ticker[i].iMinimo;
-                    //dia[d-1].iEntradaVenda = dia[d-1].Ticker[i].iMinimo - 5;
-                    dia[d].iEntradaVenda = dia[d].Ticker[i].iMinimo - 5;
-                }
-                if (dia[d].Ticker[i].iMaximo > dia[d].iMaximoChegou)
-                {
-                    dia[d].iMaximoChegou = dia[d].Ticker[i].iMaximo;
-                    //dia[d].iEntradaCompra = dia[d].Ticker[i].iMaximo + 5;
-                    dia[d].iEntradaCompra = dia[d].Ticker[i].iMaximo + 5;
-                }*/
+           
             }
             dados.iAMPDA = dados.iMAXDA - dados.iMINDA;
             int filtro = (int)Math.Round((0.1 * dados.iAMPDA / 5.0)) * 5;
             dados.iFDCPA = dados.iMINDA - filtro;// (int)(0.1 * dados.iAMPDA / 5.0) * 5;
             dados.iFDVDA = dados.iMAXDA + filtro;// (int)(0.1 * dados.iAMPDA / 5.0) * 5;
         }
-        /*
-        private void button1_Click_1(object sender, EventArgs e)
-        {
-            Page_Load();
-        }*/
+ 
     }
 }
